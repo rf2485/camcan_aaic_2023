@@ -596,10 +596,11 @@ summary(ISOVF_mmse_int_gender_age) #no
 
 #select variables and remove outliers
 df_ICVF <- df 
-df_ICVF$mean_ICVF_lower_cingulum_mask <- remove_outliers(df$mean_ICVF_lower_cingulum_mask)
+df_ICVF$mean_ICVF_lower_cingulum_mask <- remove_outliers(df_ICVF$mean_ICVF_lower_cingulum_mask)
 df_ICVF <- df_ICVF %>% drop_na(mean_ICVF_lower_cingulum_mask)
 
 #cohort interaction effects
+df_ICVF$additional_hads_anxiety <- remove_outliers(df_ICVF$additional_hads_anxiety)
 df_ICVF <- df_ICVF %>% drop_na(additional_hads_anxiety)
 
 ICVF_cohort_int_age_gender <- lm(mean_ICVF_lower_cingulum_mask ~ cohort * age + gender, df_ICVF)
@@ -684,9 +685,9 @@ ICVF_cohort_int_anxiety_age_gender_plot <- interact_plot(ICVF_cohort_int_anxiety
   theme(legend.position = 'none') +
   labs(x = "Anxiety (Mean Centered HADS)", y = "Mean ICVF", title = "Mean ICVF in Bilateral Lower Cingulum",
        subtitle = paste0("Corrected for Age and Gender \n",
-                         "interaction p < 0.001"
-                         # "interaction p = ",
-                         # signif(summary(ICVF_cohort_int_anxiety_age_gender)$coefficients[5,4], 2)
+                         # "interaction p < 0.001"
+                         "interaction p = ",
+                         signif(summary(ICVF_cohort_int_anxiety_age_gender)$coefficients[6,4], 2)
        )
   ) +
   geom_text(aes(x = 14, y = 0.85, vjust = -1, 

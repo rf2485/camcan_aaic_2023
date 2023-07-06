@@ -406,10 +406,14 @@ summary(ISOVF_mmse_int_gender_age) #no
 
 #select variables and remove outliers
 df_ICVF <- df 
-df_ICVF$mean_ICVF_fornix_mask <- remove_outliers(df$mean_ICVF_fornix_mask)
+# df_ICVF$mean_ICVF_fornix_mask <- remove_outliers(df_ICVF$mean_ICVF_fornix_mask)
 df_ICVF <- df_ICVF %>% drop_na(mean_ICVF_fornix_mask)
+# df_ICVF$additional_hads_anxiety <- remove_outliers(df_ICVF$additional_hads_anxiety)
+# df_ICVF <- df_ICVF %>% drop_na(additional_hads_anxiety)
+
 
 #cohort interaction effects
+df_ICVF$additional_hads_depression <- remove_outliers(df_ICVF$additional_hads_depression)
 df_ICVF <- df_ICVF %>% drop_na(additional_hads_depression)
 
 ICVF_cohort_int_age_gender <- lm(mean_ICVF_fornix_mask ~ cohort * age + gender, df_ICVF)
@@ -436,8 +440,8 @@ interact_plot(ICVF_cohort_int_depression_age_gender, pred = additional_hads_depr
   theme(legend.position = 'none') +
   labs(x = "Depression (Mean Centered HADS)", y = "Mean ICVF", title = "Mean ICVF in the Fornix",
        subtitle = paste0("Corrected for Age and Gender \n",
-                         "interaction p < 0.001"
-                         # signif(summary(ICVF_cohort_int_depression_age_gender)$coefficients[5,4], 2)
+                         "interaction p = ",
+                         signif(summary(ICVF_cohort_int_depression_age_gender)$coefficients[6,4], 2)
        )
   ) +
   geom_text(aes(x = 7, y = 0.8, vjust = -1, 

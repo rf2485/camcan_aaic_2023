@@ -3,6 +3,7 @@ library(interactions)
 source('cleaning.R')
 
 #group differences in anxiety and depression?
+df$additional_hads_anxiety <- remove_outliers(df$additional_hads_anxiety)
 cohort_anxiety <- lm(additional_hads_anxiety ~ cohort, df)
 summary(cohort_anxiety) #yes
 cohort_depression <- lm(additional_hads_depression ~ cohort, df)
