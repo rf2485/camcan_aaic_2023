@@ -5,24 +5,31 @@ source('cleaning.R')
 synthseg_folder <- "/Volumes/Research/lazarm03lab/labspace/AD/camcan995/derivatives/recon/synthseg"
 csv_files <- list.files(synthseg_folder, ".csv$")
 file.copy(file.path(synthseg_folder, csv_files), getwd())
-qc = read_csv('qc.csv')
-vols = read_csv('volumes.csv')
+qc = read_csv('qc.csv') %>% distinct(subject, .keep_all = TRUE)
+vols = read_csv('volumes.csv') %>% 
+  distinct(subject, .keep_all = TRUE) %>%
+  mutate(across(c(2:ncol(.)), .fns = ~./`total intracranial`)) #normalize by intracranial volume
 
-#edit subject column to remove prefix and suffix and normalize by intracranial vol
+#merge vols with qc
+vols <- left_join(vols, qc, by='subject')
+
+#edit subject column to remove prefix and suffix
 vols <- vols %>% mutate(subject = str_remove(subject, 'sub-')) %>% 
   mutate(subject = str_remove(subject, '_T1w')) %>%
-  rename(participant_id = subject) %>%
-  mutate(across(c(2:ncol(vols)), .fns = ~./`total intracranial`))
+  rename(participant_id = subject) 
 
 #merge vols with behavioral
 vols <- inner_join(vols, df_old)
 
 #hippo
-t.test(`left hippocampus` ~ scd, data = vols)
-t.test(`right hippocampus` ~ scd, data=vols)
+hippo <- vols %>% filter(`hippocampus+amygdala` >= 0.7)
+t.test(`left hippocampus` ~ scd, data = hippo)
+t.test(`right hippocampus` ~ scd, data=hippo)
 #white matter
-t.test(`left cerebral white matter` ~ scd, data=vols)
-t.test(`right cerebral white matter` ~ scd, data = vols)
+wm <- vols %>% filter(`general white matter` >= 0.7) 
+t.test(`left cerebral white matter` ~ scd, data=wm)
+t.test(`right cerebral white matter` ~ scd, data = wm)
 #gray matter
-t.test(`left cerebral cortex` ~ scd, data = vols)
+gm <- vols %>% filter(`general grey matter` >= 0.7)
+t.test(`left cerebral cortex` ~ scd, data = gm)
 t.test(`right cerebral cortex` ~ scd, data = vols)
