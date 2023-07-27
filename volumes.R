@@ -21,15 +21,27 @@ vols <- vols %>% mutate(subject = str_remove(subject, 'sub-')) %>%
 #merge vols with behavioral
 vols <- inner_join(vols, df_old)
 
-#hippo
-hippo <- vols %>% filter(`hippocampus+amygdala` >= 0.7)
-t.test(`left hippocampus` ~ scd, data = hippo)
-t.test(`right hippocampus` ~ scd, data=hippo)
 #white matter
-wm <- vols %>% filter(`general white matter` >= 0.7) 
-t.test(`left cerebral white matter` ~ scd, data=wm)
-t.test(`right cerebral white matter` ~ scd, data = wm)
+wm <- vols %>% filter(`general white matter` >= 0.8)
+lapply(wm[,c(3, 21)], function(x) t.test(x~wm$scd))
 #gray matter
 gm <- vols %>% filter(`general grey matter` >= 0.7)
-t.test(`left cerebral cortex` ~ scd, data = gm)
-t.test(`right cerebral cortex` ~ scd, data = vols)
+lapply(gm[,c(4, 22, 35:102)], function(x) t.test(x~gm$scd))
+#csf
+csf <- vols %>% filter(`general csf` >= 0.8)
+lapply(csf[,c(5, 6, 13, 14, 18, 23, 24)], function(x) t.test(x~csf$scd))
+#cerebellum
+cb <- vols %>% filter(cerebellum >= 0.8)
+lapply(cb[,c(7, 8, 25, 26)], function(x) t.test(x~cb$scd))
+#brainstem
+bs <- vols %>% filter(brainstem >= 0.8)
+t.test(`brain-stem`~scd, data = bs)
+#thalamus
+thal <- vols %>% filter(thalamus >= 0.8)
+lapply(thal[,c(9, 10, 20, 27, 28, 34)], function(x) t.test(x~thal$scd))
+#putamen
+put <- vols %>% filter(`putamen+pallidum` >= 0.8)
+lapply(put[,c(11, 12, 19, 29, 30, 33)], function(x) t.test(x~put$scd))
+#hippo
+hippo <- vols %>% filter(`hippocampus+amygdala` >= 0.8)
+lapply(hippo[,c(16, 17, 31, 32)], function(x) t.test(x~hippo$scd))
